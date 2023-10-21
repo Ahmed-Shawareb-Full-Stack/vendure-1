@@ -33,6 +33,8 @@ export class BannerTranslation
 
   @Column('text') url: string;
 
+  @Column('text') title: string;
+
   @Column('int')
   featuredAssetId: number;
 

@@ -15,6 +15,7 @@ export class Banner extends VendureEntity implements Translatable {
   constructor(input?: DeepPartial<Banner>) {
     super(input);
   }
+  title: LocaleString;
   languageCode: LanguageCode;
   featuredAsset: Asset;
   url: LocaleString;
