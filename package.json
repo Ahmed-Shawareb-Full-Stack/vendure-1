@@ -12,7 +12,8 @@
     "start": "concurrently npm:start:*",
     "migration:generate": "ts-node migration generate",
     "migration:run": "ts-node migration run",
-    "migration:revert": "ts-node migration revert"
+    "migration:revert": "ts-node migration revert",
+    "graphql-codegen": "graphql-codegen"
   },
   "dependencies": {
     "@vendure/admin-ui-plugin": "2.1.0",
@@ -26,6 +27,8 @@
     "typescript": "4.9.5"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/client-preset": "^4.1.0",
     "@vendure/ui-devkit": "^2.1.1",
     "concurrently": "8.2.1",
     "ts-node": "10.9.1"

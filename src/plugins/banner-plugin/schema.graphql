@@ -1,0 +1,35 @@
+query getBannerList($options: BannerListOptions) {
+  getBannersPaginated(options: $options) {
+    items {
+      id
+      title
+      createdAt
+      updatedAt
+    }
+    totalItems
+  }
+}
+
+query getBannerDetails($id: ID) {
+  getBanner(id: $id) {
+    id
+    title
+    languageCode
+    url
+    createdAt
+    updatedAt
+    featuredAsset {
+      id
+      fileSize
+    }
+    translations {
+      id
+      title
+      url
+      languageCode
+      featuredAsset {
+        id
+      }
+    }
+  }
+}

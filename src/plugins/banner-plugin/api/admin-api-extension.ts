@@ -1,14 +1,12 @@
-import { LanguageCode } from '@vendure/core';
-import { Translated } from '@vendure/core';
-import { Banner } from './../entities/banner.entity';
 import gql from 'graphql-tag';
 
 export const adminApiExtension = gql`
   type Banner implements Node {
     id: ID!
     createdAt: DateTime!
-    updatedAT: DateTime
+    updatedAt: DateTime!
     languageCode: LanguageCode!
+    title: String!
     url: String!
     featuredAsset: Asset!
     translations: [BannerTranslation]!
@@ -17,14 +15,23 @@ export const adminApiExtension = gql`
   type BannerTranslation implements Node {
     id: ID!
     languageCode: LanguageCode!
+    title: String!
     url: String!
     featuredAsset: Asset!
   }
+
+  type BannerList implements PaginatedList {
+    items: [Banner!]!
+    totalItems: Int!
+  }
+
+  input BannerListOptions
 
   input CreateBannerTranslationInput {
     featuredAssetId: ID!
     assetIds: [ID]!
     languageCode: LanguageCode!
+    title: String!
     url: String!
   }
 
@@ -33,6 +40,7 @@ export const adminApiExtension = gql`
     url: String!
     featuredAssetId: ID!
     assetIds: [ID]!
+    title: String!
   }
 
   input CreateBannerInput {
@@ -46,6 +54,8 @@ export const adminApiExtension = gql`
 
   extend type Query {
     getBanners: [Banner!]
+    getBannersPaginated(options: BannerListOptions): BannerList
+    getBanner(id: ID): Banner
   }
 
   extend type Mutation {

@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import {
-  AssetService,
-  EntityAssetInput,
-  EntityWithAssets,
   ID,
+  ListQueryBuilder,
+  ListQueryOptions,
+  PaginatedList,
   RequestContext,
   TransactionalConnection,
   TranslatableSaver,
   Translated,
-  TranslatedInput,
   TranslatorService,
 } from '@vendure/core';
 import { Banner } from '../entities/banner.entity';
@@ -21,7 +20,7 @@ export class BannerService {
     private connection: TransactionalConnection,
     private translatorService: TranslatorService,
     private translatableSaver: TranslatableSaver,
-    private assetService: AssetService
+    private listQueryBuilder: ListQueryBuilder
   ) {}
 
   async getBanner(
@@ -39,10 +38,25 @@ export class BannerService {
     return this.translatorService.translate(banner, ctx);
   }
 
-  async getBanners(ctx: RequestContext) {
-    console.log(ctx.languageCode);
-    const banners = await this.connection.getRepository(ctx, Banner).find();
+  async getBannersPaginated(
+    ctx: RequestContext,
+    options?: ListQueryOptions<Banner>
+  ): Promise<PaginatedList<Banner>> {
+    const banners = await this.listQueryBuilder
+      .build(Banner, options, { ctx })
+      .getManyAndCount()
+      .then(([items, totalItems]) => ({
+        items,
+        totalItems,
+      }));
+    banners.items = banners.items.map((banner) =>
+      this.translatorService.translate(banner, ctx)
+    );
+    return banners;
+  }
 
+  async getBanners(ctx: RequestContext) {
+    const banners = await this.connection.getRepository(ctx, Banner).find();
     return Promise.all(
       banners.map((banner) => this.translatorService.translate(banner, ctx))
     );
@@ -57,19 +71,6 @@ export class BannerService {
       entityType: Banner,
       translationType: BannerTranslation,
       input,
-      beforeSave: (banner) => {
-        // console.log(banner);
-        // banner.translations.forEach(async (t) => {
-        //   console.log(t);
-        //   const a = await this.assetService.updateFeaturedAsset(
-        //     ctx,
-        //     new BannerTranslation(t),
-        //     t as EntityAssetInput
-        //   );
-        //   console.log(a);
-        //   return a;
-        // });
-      },
     });
 
     return this.getBanner(ctx, banner.id);
