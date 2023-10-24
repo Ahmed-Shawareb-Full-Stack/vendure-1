@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   ID,
+  LanguageCode,
   ListQueryBuilder,
   ListQueryOptions,
   PaginatedList,
@@ -9,11 +10,22 @@ import {
   TranslatableSaver,
   Translated,
   TranslatorService,
+  UserInputError,
 } from '@vendure/core';
 import { Banner } from '../entities/banner.entity';
 import { BannerTranslation } from '../entities/banner-translation.entity';
-import { CreateBannerInput, UpdateBannerInput } from '../types';
+import {
+  CreateBannerInput,
+  DeleteBannerInput,
+  UpdateBannerInput,
+} from '../types';
 
+interface FindBannerOptions {
+  page?: number;
+  position?: number;
+  active?: boolean;
+  languageCode?: LanguageCode;
+}
 @Injectable()
 export class BannerService {
   constructor(
@@ -36,6 +48,32 @@ export class BannerService {
     }
 
     return this.translatorService.translate(banner, ctx);
+  }
+
+  async getBannerByOption(
+    ctx: RequestContext,
+    options: FindBannerOptions
+  ): Promise<Boolean | number> {
+    const banners = await this.connection.getRepository(ctx, Banner).find({
+      where: {
+        active: true,
+        page: options.page,
+        position: options.position,
+      },
+    });
+
+    const activeBannersPerPage = await this.connection
+      .getRepository(ctx, Banner)
+      .count({
+        where: {
+          active: options.active,
+          page: options.page,
+        },
+      });
+
+    if (banners.length) return true;
+    if (activeBannersPerPage >= 12) return 12;
+    return false;
   }
 
   async getBannersPaginated(
@@ -66,17 +104,49 @@ export class BannerService {
     ctx: RequestContext,
     input: CreateBannerInput
   ): Promise<Banner | void> {
+    if (input.active) {
+      const existingBanner = await this.getBannerByOption(ctx, {
+        page: input.page,
+        position: input.position,
+        active: input.active,
+      });
+      if (existingBanner) {
+        throw new UserInputError(
+          'Only one active banner should be in this page at this position'
+        );
+      }
+      if (existingBanner === 12) {
+        throw new UserInputError('Only 12 active banner are allowed per page');
+      }
+    }
     const banner = await this.translatableSaver.create({
       ctx,
       entityType: Banner,
       translationType: BannerTranslation,
       input,
     });
-
     return this.getBanner(ctx, banner.id);
   }
 
   async updateBanner(ctx: RequestContext, input: UpdateBannerInput) {
+    const currentBanner = await this.connection
+      .getRepository(ctx, Banner)
+      .findOneBy({ id: input.id });
+
+    if (!currentBanner?.active && input.active) {
+      const existingBanner = await this.getBannerByOption(ctx, {
+        page: input.page,
+        position: input.position,
+      });
+      if (existingBanner) {
+        throw new UserInputError(
+          'Only one active banner should be in this page at this position'
+        );
+      }
+      if (existingBanner === 12) {
+        throw new UserInputError('Only 12 active banner are allowed per page');
+      }
+    }
     const banner = await this.translatableSaver.update({
       ctx,
       entityType: Banner,
@@ -85,5 +155,13 @@ export class BannerService {
     });
 
     return this.getBanner(ctx, banner.id);
+  }
+
+  async deleteBanner(ctx: RequestContext, input: DeleteBannerInput) {
+    try {
+      this.connection.getRepository(ctx, Banner).delete(input.id);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

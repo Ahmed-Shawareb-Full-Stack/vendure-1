@@ -299,21 +299,27 @@ export type AuthenticationResult = CurrentUser | InvalidCredentialsError;
 
 export type Banner = Node & {
   __typename?: 'Banner';
+  active: Scalars['Boolean']['output'];
   createdAt: Scalars['DateTime']['output'];
-  featuredAsset: Asset;
+  featuredAsset?: Maybe<Asset>;
   id: Scalars['ID']['output'];
   languageCode: LanguageCode;
-  title: Scalars['String']['output'];
+  page: Scalars['Int']['output'];
+  position: Scalars['Int']['output'];
+  redirectToUrl: Scalars['Boolean']['output'];
   translations: Array<Maybe<BannerTranslation>>;
   updatedAt: Scalars['DateTime']['output'];
-  url: Scalars['String']['output'];
+  url?: Maybe<Scalars['String']['output']>;
 };
 
 export type BannerFilterParameter = {
+  active?: InputMaybe<BooleanOperators>;
   createdAt?: InputMaybe<DateOperators>;
   id?: InputMaybe<IdOperators>;
   languageCode?: InputMaybe<StringOperators>;
-  title?: InputMaybe<StringOperators>;
+  page?: InputMaybe<NumberOperators>;
+  position?: InputMaybe<NumberOperators>;
+  redirectToUrl?: InputMaybe<BooleanOperators>;
   updatedAt?: InputMaybe<DateOperators>;
   url?: InputMaybe<StringOperators>;
 };
@@ -340,7 +346,8 @@ export type BannerListOptions = {
 export type BannerSortParameter = {
   createdAt?: InputMaybe<SortOrder>;
   id?: InputMaybe<SortOrder>;
-  title?: InputMaybe<SortOrder>;
+  page?: InputMaybe<SortOrder>;
+  position?: InputMaybe<SortOrder>;
   updatedAt?: InputMaybe<SortOrder>;
   url?: InputMaybe<SortOrder>;
 };
@@ -350,7 +357,6 @@ export type BannerTranslation = Node & {
   featuredAsset: Asset;
   id: Scalars['ID']['output'];
   languageCode: LanguageCode;
-  title: Scalars['String']['output'];
   url: Scalars['String']['output'];
 };
 
@@ -774,14 +780,17 @@ export type CreateAssetInput = {
 export type CreateAssetResult = Asset | MimeTypeError;
 
 export type CreateBannerInput = {
-  translations?: InputMaybe<Array<CreateBannerTranslationInput>>;
+  active: Scalars['Boolean']['input'];
+  page: Scalars['Int']['input'];
+  position: Scalars['Int']['input'];
+  redirectToUrl: Scalars['Boolean']['input'];
+  translations: Array<CreateBannerTranslationInput>;
 };
 
 export type CreateBannerTranslationInput = {
   assetIds: Array<InputMaybe<Scalars['ID']['input']>>;
   featuredAssetId: Scalars['ID']['input'];
   languageCode: LanguageCode;
-  title: Scalars['String']['input'];
   url: Scalars['String']['input'];
 };
 
@@ -1560,6 +1569,10 @@ export type DeleteAssetsInput = {
   assetIds: Array<Scalars['ID']['input']>;
   deleteFromAllChannels?: InputMaybe<Scalars['Boolean']['input']>;
   force?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type DeleteBannerInput = {
+  id: Array<Scalars['ID']['input']>;
 };
 
 export type DeleteStockLocationInput = {
@@ -2738,6 +2751,7 @@ export type Mutation = {
   deleteAsset: DeletionResponse;
   /** Delete multiple Assets */
   deleteAssets: DeletionResponse;
+  deleteBanner?: Maybe<Scalars['Boolean']['output']>;
   /** Delete a Channel */
   deleteChannel: DeletionResponse;
   /** Delete multiple Channels */
@@ -3215,6 +3229,11 @@ export type MutationDeleteAssetArgs = {
 
 export type MutationDeleteAssetsArgs = {
   input: DeleteAssetsInput;
+};
+
+
+export type MutationDeleteBannerArgs = {
+  input?: InputMaybe<DeleteBannerInput>;
 };
 
 
@@ -6204,7 +6223,11 @@ export type UpdateAssetInput = {
 };
 
 export type UpdateBannerInput = {
+  active?: InputMaybe<Scalars['Boolean']['input']>;
   id: Scalars['ID']['input'];
+  page?: InputMaybe<Scalars['Int']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  redirectToUrl?: InputMaybe<Scalars['Boolean']['input']>;
   translations?: InputMaybe<Array<UpdaterBannerTranslationInput>>;
 };
 
@@ -6469,11 +6492,10 @@ export type UpdateZoneInput = {
 };
 
 export type UpdaterBannerTranslationInput = {
-  assetIds: Array<InputMaybe<Scalars['ID']['input']>>;
-  featuredAssetId: Scalars['ID']['input'];
-  languageCode: LanguageCode;
-  title: Scalars['String']['input'];
-  url: Scalars['String']['input'];
+  assetIds?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  featuredAssetId?: InputMaybe<Scalars['ID']['input']>;
+  languageCode?: InputMaybe<LanguageCode>;
+  url?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type User = Node & {
@@ -6537,15 +6559,39 @@ export type GetBannerListQueryVariables = Exact<{
 }>;
 
 
-export type GetBannerListQuery = { __typename?: 'Query', getBannersPaginated?: { __typename?: 'BannerList', totalItems: number, items: Array<{ __typename?: 'Banner', id: string, title: string, createdAt: any, updatedAt: any }> } | null };
+export type GetBannerListQuery = { __typename?: 'Query', getBannersPaginated?: { __typename?: 'BannerList', totalItems: number, items: Array<{ __typename?: 'Banner', id: string, createdAt: any, updatedAt: any, page: number, position: number, active: boolean, redirectToUrl: boolean, featuredAsset?: { __typename?: 'Asset', id: string, createdAt: any, updatedAt: any, name: string, type: AssetType, fileSize: number, mimeType: string, width: number, height: number, source: string, preview: string } | null }> } | null };
 
 export type GetBannerDetailsQueryVariables = Exact<{
   id?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
 
-export type GetBannerDetailsQuery = { __typename?: 'Query', getBanner?: { __typename?: 'Banner', id: string, title: string, languageCode: LanguageCode, url: string, createdAt: any, updatedAt: any, featuredAsset: { __typename?: 'Asset', id: string, fileSize: number }, translations: Array<{ __typename?: 'BannerTranslation', id: string, title: string, url: string, languageCode: LanguageCode, featuredAsset: { __typename?: 'Asset', id: string } } | null> } | null };
+export type GetBannerDetailsQuery = { __typename?: 'Query', getBanner?: { __typename?: 'Banner', id: string, languageCode: LanguageCode, url?: string | null, createdAt: any, updatedAt: any, page: number, position: number, active: boolean, redirectToUrl: boolean, featuredAsset?: { __typename?: 'Asset', id: string, createdAt: any, updatedAt: any, name: string, type: AssetType, fileSize: number, mimeType: string, width: number, height: number, source: string, preview: string } | null, translations: Array<{ __typename?: 'BannerTranslation', id: string, url: string, languageCode: LanguageCode, featuredAsset: { __typename?: 'Asset', id: string, createdAt: any, updatedAt: any, name: string, type: AssetType, fileSize: number, mimeType: string, width: number, height: number, source: string, preview: string } } | null> } | null };
+
+export type UpdateBannerDetailsMutationVariables = Exact<{
+  input?: InputMaybe<UpdateBannerInput>;
+}>;
 
 
-export const GetBannerListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getBannerList"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"options"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"BannerListOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getBannersPaginated"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"options"},"value":{"kind":"Variable","name":{"kind":"Name","value":"options"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalItems"}}]}}]}}]} as unknown as DocumentNode<GetBannerListQuery, GetBannerListQueryVariables>;
-export const GetBannerDetailsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getBannerDetails"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getBanner"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"languageCode"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"featuredAsset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"}}]}},{"kind":"Field","name":{"kind":"Name","value":"translations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"languageCode"}},{"kind":"Field","name":{"kind":"Name","value":"featuredAsset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetBannerDetailsQuery, GetBannerDetailsQueryVariables>;
+export type UpdateBannerDetailsMutation = { __typename?: 'Mutation', updateBanner?: { __typename?: 'Banner', id: string, url?: string | null, page: number, position: number, active: boolean, redirectToUrl: boolean, featuredAsset?: { __typename?: 'Asset', id: string, createdAt: any, updatedAt: any, name: string, type: AssetType, fileSize: number, mimeType: string, width: number, height: number, source: string, preview: string } | null, translations: Array<{ __typename?: 'BannerTranslation', id: string, url: string, languageCode: LanguageCode, featuredAsset: { __typename?: 'Asset', id: string } } | null> } | null };
+
+export type CreateBannerMutationMutationVariables = Exact<{
+  input?: InputMaybe<CreateBannerInput>;
+}>;
+
+
+export type CreateBannerMutationMutation = { __typename?: 'Mutation', createBanner?: { __typename?: 'Banner', id: string, url?: string | null, page: number, position: number, active: boolean, redirectToUrl: boolean, featuredAsset?: { __typename?: 'Asset', id: string, createdAt: any, updatedAt: any, name: string, type: AssetType, fileSize: number, mimeType: string, width: number, height: number, source: string, preview: string } | null, translations: Array<{ __typename?: 'BannerTranslation', id: string, url: string, languageCode: LanguageCode, featuredAsset: { __typename?: 'Asset', id: string } } | null> } | null };
+
+export type DeleteBannerMutationVariables = Exact<{
+  input?: InputMaybe<DeleteBannerInput>;
+}>;
+
+
+export type DeleteBannerMutation = { __typename?: 'Mutation', deleteBanner?: boolean | null };
+
+
+export const GetBannerListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getBannerList"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"options"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"BannerListOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getBannersPaginated"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"options"},"value":{"kind":"Variable","name":{"kind":"Name","value":"options"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"active"}},{"kind":"Field","name":{"kind":"Name","value":"redirectToUrl"}},{"kind":"Field","name":{"kind":"Name","value":"featuredAsset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"width"}},{"kind":"Field","name":{"kind":"Name","value":"height"}},{"kind":"Field","name":{"kind":"Name","value":"source"}},{"kind":"Field","name":{"kind":"Name","value":"preview"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalItems"}}]}}]}}]} as unknown as DocumentNode<GetBannerListQuery, GetBannerListQueryVariables>;
+export const GetBannerDetailsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getBannerDetails"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getBanner"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"languageCode"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"active"}},{"kind":"Field","name":{"kind":"Name","value":"redirectToUrl"}},{"kind":"Field","name":{"kind":"Name","value":"featuredAsset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"width"}},{"kind":"Field","name":{"kind":"Name","value":"height"}},{"kind":"Field","name":{"kind":"Name","value":"source"}},{"kind":"Field","name":{"kind":"Name","value":"preview"}}]}},{"kind":"Field","name":{"kind":"Name","value":"translations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"languageCode"}},{"kind":"Field","name":{"kind":"Name","value":"featuredAsset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"width"}},{"kind":"Field","name":{"kind":"Name","value":"height"}},{"kind":"Field","name":{"kind":"Name","value":"source"}},{"kind":"Field","name":{"kind":"Name","value":"preview"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetBannerDetailsQuery, GetBannerDetailsQueryVariables>;
+export const UpdateBannerDetailsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"updateBannerDetails"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateBannerInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateBanner"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"active"}},{"kind":"Field","name":{"kind":"Name","value":"redirectToUrl"}},{"kind":"Field","name":{"kind":"Name","value":"featuredAsset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"width"}},{"kind":"Field","name":{"kind":"Name","value":"height"}},{"kind":"Field","name":{"kind":"Name","value":"source"}},{"kind":"Field","name":{"kind":"Name","value":"preview"}}]}},{"kind":"Field","name":{"kind":"Name","value":"translations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"languageCode"}},{"kind":"Field","name":{"kind":"Name","value":"featuredAsset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]} as unknown as DocumentNode<UpdateBannerDetailsMutation, UpdateBannerDetailsMutationVariables>;
+export const CreateBannerMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createBannerMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateBannerInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createBanner"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"active"}},{"kind":"Field","name":{"kind":"Name","value":"redirectToUrl"}},{"kind":"Field","name":{"kind":"Name","value":"featuredAsset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"width"}},{"kind":"Field","name":{"kind":"Name","value":"height"}},{"kind":"Field","name":{"kind":"Name","value":"source"}},{"kind":"Field","name":{"kind":"Name","value":"preview"}}]}},{"kind":"Field","name":{"kind":"Name","value":"translations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"languageCode"}},{"kind":"Field","name":{"kind":"Name","value":"featuredAsset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateBannerMutationMutation, CreateBannerMutationMutationVariables>;
+export const DeleteBannerDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"deleteBanner"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"DeleteBannerInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteBanner"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<DeleteBannerMutation, DeleteBannerMutationVariables>;

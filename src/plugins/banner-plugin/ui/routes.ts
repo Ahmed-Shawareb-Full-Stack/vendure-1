@@ -23,7 +23,7 @@ export default [
         link: ['/extensions', 'banners'],
       },
       {
-        label: `#${entity?.id} (${entity?.title})`,
+        label: `#${entity ? entity.id : ''}`,
         link: [],
       },
     ],

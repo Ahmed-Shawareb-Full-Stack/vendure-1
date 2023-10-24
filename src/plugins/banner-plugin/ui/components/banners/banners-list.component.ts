@@ -20,10 +20,22 @@ export class BannerListComponent extends TypedBaseListComponent<
     .addIdFilter()
     .addDateFilters()
     .addFilter({
-      name: 'title',
-      type: { kind: 'text' },
-      label: 'Title',
-      filterField: 'title',
+      name: 'page',
+      type: { kind: 'number' },
+      label: 'Page',
+      filterField: 'page',
+    })
+    .addFilter({
+      name: 'position',
+      type: { kind: 'number' },
+      label: 'Position',
+      filterField: 'position',
+    })
+    .addFilter({
+      name: 'active',
+      type: { kind: 'boolean' },
+      label: 'Active',
+      filterField: 'active',
     })
     .connectToRoute(this.route);
 
@@ -31,27 +43,27 @@ export class BannerListComponent extends TypedBaseListComponent<
     .defaultSort('createdAt', 'DESC')
     .addSort({ name: 'createdAt' })
     .addSort({ name: 'updatedAt' })
-    .addSort({ name: 'title' })
+    .addSort({ name: 'position' })
+    .addSort({ name: 'page' })
     .connectToRoute(this.route);
 
   constructor() {
-    super();
+    super();            
     super.configure({
       document: GetBannerListDocument,
       getItems: (data: any) => data.getBannersPaginated,
-      setVariables: (skip, take) => ({
-        options: {
-          skip,
-          take,
-          filter: {
-            title: {
-              contains: this.searchTermControl.value,
+      setVariables: (skip, take) => {
+        return {
+          options: {
+            skip,
+            take,
+            filter: {
+              ...this.filters.createFilterInput(),
             },
-            ...this.filters.createFilterInput(),
+            sort: this.sorts.createSortInput(),
           },
-          sort: this.sorts.createSortInput(),
-        },
-      }),
+        };
+      },
       refreshListOnChanges: [
         this.filters.valueChanges,
         this.sorts.valueChanges,

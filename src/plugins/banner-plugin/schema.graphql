@@ -2,9 +2,25 @@ query getBannerList($options: BannerListOptions) {
   getBannersPaginated(options: $options) {
     items {
       id
-      title
       createdAt
       updatedAt
+      page
+      position
+      active
+      redirectToUrl
+      featuredAsset {
+        id
+        createdAt
+        updatedAt
+        name
+        type
+        fileSize
+        mimeType
+        width
+        height
+        source
+        preview
+      }
     }
     totalItems
   }
@@ -13,18 +29,71 @@ query getBannerList($options: BannerListOptions) {
 query getBannerDetails($id: ID) {
   getBanner(id: $id) {
     id
-    title
     languageCode
     url
     createdAt
     updatedAt
+    page
+    position
+    active
+    redirectToUrl
     featuredAsset {
       id
+      createdAt
+      updatedAt
+      name
+      type
       fileSize
+      mimeType
+      width
+      height
+      source
+      preview
     }
     translations {
       id
-      title
+      url
+      languageCode
+      featuredAsset {
+        id
+        createdAt
+        updatedAt
+        name
+        type
+        fileSize
+        mimeType
+        width
+        height
+        source
+        preview
+      }
+    }
+  }
+}
+
+mutation updateBannerDetails($input: UpdateBannerInput) {
+  updateBanner(input: $input) {
+    id
+    url
+    page
+    position
+    active
+    redirectToUrl
+    featuredAsset {
+      id
+      createdAt
+      updatedAt
+      name
+      type
+      fileSize
+      mimeType
+      width
+      height
+      source
+      preview
+    }
+    translations {
+      id
       url
       languageCode
       featuredAsset {
@@ -32,4 +101,40 @@ query getBannerDetails($id: ID) {
       }
     }
   }
+}
+
+mutation createBannerMutation($input: CreateBannerInput) {
+  createBanner(input: $input) {
+    id
+    url
+    page
+    position
+    active
+    redirectToUrl
+    featuredAsset {
+      id
+      createdAt
+      updatedAt
+      name
+      type
+      fileSize
+      mimeType
+      width
+      height
+      source
+      preview
+    }
+    translations {
+      id
+      url
+      languageCode
+      featuredAsset {
+        id
+      }
+    }
+  }
+}
+
+mutation deleteBanner($input: DeleteBannerInput) {
+  deleteBanner(input: $input)
 }

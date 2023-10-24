@@ -1,12 +1,21 @@
 <vdr-page-block>
   <vdr-action-bar>
-    <vdr-ab-left></vdr-ab-left>
+    <vdr-ab-left>
+      <vdr-language-selector
+        [disabled]="isNew$ | async"
+        [availableLanguageCodes]="availableLanguages$ | async"
+        [currentLanguageCode]="languageCode$ | async"
+        (languageCodeChange)="setLanguage($event)"
+      ></vdr-language-selector>
+    </vdr-ab-left>
     <vdr-ab-right>
       <button
         class="button primary"
         *ngIf="isNew$ | async; else updateButton"
         (click)="create()"
-        [disabled]="detailForm.pristine || detailForm.invalid"
+        [disabled]="
+          detailForm.invalid || detailForm.pristine || !assetsChanged()
+        "
       >
         {{ 'common.create' | translate }}
       </button>
@@ -14,7 +23,9 @@
         <button
           class="btn btn-primary"
           (click)="update()"
-          [disabled]="detailForm.pristine || detailForm.invalid"
+          [disabled]="
+            (detailForm.invalid || detailForm.pristine) && !assetsChanged()
+          "
         >
           {{ 'common.update' | translate }}
         </button>
@@ -25,12 +36,35 @@
 
 <form class="form" [formGroup]="detailForm">
   <vdr-page-detail-layout>
-    <!-- The sidebar is used for displaying "metadata" type information about the entity -->
     <vdr-page-detail-sidebar>
-      <vdr-card *ngIf="entity$ | async as entity">
-        <vdr-page-entity-info [entity]="entity" />
+      <vdr-card>
+        <vdr-form-field label="State" for="state">
+          <!-- <clr-toggle-wrapper *vdrIfPermissions="updatePermissions"> -->
+          <input
+            type="checkbox"
+            clrToggle
+            name="state"
+            [formControl]="detailForm.get(['active'])"
+          />
+          <label>active</label>
+          <!-- </clr-toggle-wrapper> -->
+        </vdr-form-field>
+      </vdr-card>
+      <vdr-card>
+        <vdr-form-field label="Redirect To Url" for="redirect">
+          <!-- <clr-toggle-wrapper *vdrIfPermissions="updatePermissions"> -->
+          <input
+            type="checkbox"
+            clrToggle
+            name="redirect"
+            [formControl]="detailForm.get(['redirectToUrl'])"
+          />
+          <label>enable</label>
+          <!-- </clr-toggle-wrapper> -->
+        </vdr-form-field>
       </vdr-card>
     </vdr-page-detail-sidebar>
+    <!-- The sidebar is used for displaying "metadata" type information about the entity -->
     <!-- The main content area is used for displaying the entity's fields -->
     <vdr-page-block>
       <!-- The vdr-card is the container for grouping items together on a page -->
@@ -38,14 +72,104 @@
       <vdr-card>
         <!-- the form-grid class is used to lay out the form fields -->
         <div class="form-grid">
-          <vdr-form-field label="Title" for="title">
-            <input id="title" type="text" formControlName="title" />
-          </vdr-form-field>
+          <!-- <vdr-form-field label="Page" for="page">
+            <input id="page" type="text" formControlName="page" />
+          </vdr-form-field> -->
           <vdr-form-field label="URL" for="url">
             <input id="url" type="text" formControlName="url" />
           </vdr-form-field>
+
+          <!-- <vdr-form-field label="Page" , for="page">
+            <select formControlName="page">
+              <option *ngFor="let page of pages" [ngValue]="page">
+                {{ page }}
+              </option>
+            </select>
+          </vdr-form-field> -->
+
+          <div
+            class="form-group"
+            [class.clr-error]="formFieldControl?.formControlName?.invalid"
+          >
+            <label for="page" class=""> Pages </label>
+
+            <div
+              class="input-row"
+              [class.has-toggle]="readOnlyToggle"
+              [class.invalid]="
+                formFieldControl?.touched && !formFieldControl?.valid
+              "
+            >
+              <select formControlName="page">
+                <option *ngFor="let page of pages" [ngValue]="page.value">
+                  {{ page.page }}
+                </option>
+              </select>
+              <!-- <button
+                *ngIf="readOnlyToggle"
+                type="button"
+                [disabled]="!isReadOnly"
+                [title]="'common.edit-field' | translate"
+                class="btn btn-icon edit-button"
+                (click)="setReadOnly(false)"
+              > -->
+              <!-- <clr-icon shape="edit"></clr-icon>
+              </button> -->
+            </div>
+            <div class="error-message" *ngIf="getErrorMessage()">
+              {{ getErrorMessage() }}
+            </div>
+          </div>
+          <div
+            class="form-group"
+            [class.clr-error]="formFieldControl?.formControlName?.invalid"
+          >
+            <label for="position" class=""> Positions </label>
+
+            <div
+              class="input-row"
+              [class.has-toggle]="readOnlyToggle"
+              [class.invalid]="
+                formFieldControl?.touched && !formFieldControl?.valid
+              "
+            >
+              <select formControlName="position">
+                <option
+                  *ngFor="let position of positions"
+                  [ngValue]="position.value"
+                >
+                  {{ position.position }}
+                </option>
+              </select>
+              <!-- <button
+                *ngIf="readOnlyToggle"
+                type="button"
+                [disabled]="!isReadOnly"
+                [title]="'common.edit-field' | translate"
+                class="btn btn-icon edit-button"
+                (click)="setReadOnly(false)"
+              > -->
+              <!-- <clr-icon shape="edit"></clr-icon>
+              </button> -->
+            </div>
+            <div class="error-message" *ngIf="getErrorMessage()">
+              {{ getErrorMessage() }}
+            </div>
+          </div>
+
           <!-- etc -->
         </div>
+      </vdr-card>
+      <!-- <vdr-custom-detail-component-host
+        locationId="banner-detail"
+        [entity$]="entity$"
+        [detailForm]="detailForm"
+      ></vdr-custom-detail-component-host> -->
+      <vdr-card title="Assets">
+        <vdr-custom-assets
+          [featuredAsset]="assetChanges.featuredAsset"
+          (change)="assetChanges = $event"
+        ></vdr-custom-assets>
       </vdr-card>
     </vdr-page-block>
   </vdr-page-detail-layout>

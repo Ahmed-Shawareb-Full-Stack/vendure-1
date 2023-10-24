@@ -1,7 +1,13 @@
 <!-- optional if you want some buttons at the top -->
 <vdr-page-block>
   <vdr-action-bar>
-    <vdr-ab-left></vdr-ab-left>
+    <vdr-ab-left>
+      <vdr-language-selector
+        [availableLanguageCodes]="availableLanguages$ | async"
+        [currentLanguageCode]="contentLanguage$ | async"
+        (languageCodeChange)="setLanguage($event)"
+      ></vdr-language-selector>
+    </vdr-ab-left>
     <vdr-ab-right>
       <a
         class="btn btn-primary"
@@ -36,13 +42,35 @@
   <!-- Adds a search bar -->
   <vdr-dt2-search
     [searchTermControl]="searchTermControl"
-    searchTermPlaceholder="Filter by title"
+    searchTermPlaceholder="Search"
   />
 
   <!-- Here we define all the available columns -->
-  <vdr-dt2-column [heading]="'common.id' | translate" [hiddenByDefault]="true">
+  <vdr-dt2-column [heading]="'common.id' | translate" [hiddenByDefault]="false">
     <ng-template let-banner="item">
-      {{ banner.id }}
+      <a class="button-ghost" [routerLink]="['./', banner.id]"
+        ><span>{{ banner.id }}</span>
+        <clr-icon shape="arrow right"></clr-icon>
+      </a>
+    </ng-template>
+  </vdr-dt2-column>
+  <vdr-dt2-column heading="Page" [optional]="false" [sort]="sorts.get('page')">
+    <ng-template let-banner="item">
+      {{ banner.page }}
+    </ng-template>
+  </vdr-dt2-column>
+  <vdr-dt2-column
+    heading="Position"
+    [optional]="false"
+    [sort]="sorts.get('position')"
+  >
+    <ng-template let-banner="item">
+      {{ banner.position }}
+    </ng-template>
+  </vdr-dt2-column>
+  <vdr-dt2-column heading="State" [optional]="false">
+    <ng-template let-banner="item">
+      {{ banner.active ? 'Active' : 'Disabled' }}
     </ng-template>
   </vdr-dt2-column>
   <vdr-dt2-column
@@ -61,18 +89,6 @@
   >
     <ng-template let-banner="item">
       {{ banner.updatedAt | localeDate : 'short' }}
-    </ng-template>
-  </vdr-dt2-column>
-  <vdr-dt2-column
-    heading="Title"
-    [optional]="false"
-    [sort]="sorts.get('title')"
-  >
-    <ng-template let-banner="item">
-      <a class="button-ghost" [routerLink]="['./', banner.id]"
-        ><span>{{ banner.title }}</span>
-        <clr-icon shape="arrow right"></clr-icon>
-      </a>
     </ng-template>
   </vdr-dt2-column>
 </vdr-data-table-2>

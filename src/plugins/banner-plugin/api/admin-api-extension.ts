@@ -6,16 +6,18 @@ export const adminApiExtension = gql`
     createdAt: DateTime!
     updatedAt: DateTime!
     languageCode: LanguageCode!
-    title: String!
-    url: String!
-    featuredAsset: Asset!
+    url: String
+    page: Int!
+    position: Int!
+    active: Boolean!
+    redirectToUrl: Boolean!
+    featuredAsset: Asset
     translations: [BannerTranslation]!
   }
 
   type BannerTranslation implements Node {
     id: ID!
     languageCode: LanguageCode!
-    title: String!
     url: String!
     featuredAsset: Asset!
   }
@@ -31,25 +33,35 @@ export const adminApiExtension = gql`
     featuredAssetId: ID!
     assetIds: [ID]!
     languageCode: LanguageCode!
-    title: String!
     url: String!
   }
 
   input UpdaterBannerTranslationInput {
-    languageCode: LanguageCode!
-    url: String!
-    featuredAssetId: ID!
-    assetIds: [ID]!
-    title: String!
+    languageCode: LanguageCode
+    url: String
+    featuredAssetId: ID
+    assetIds: [ID]
   }
 
   input CreateBannerInput {
-    translations: [CreateBannerTranslationInput!]
+    page: Int!
+    position: Int!
+    active: Boolean!
+    redirectToUrl: Boolean!
+    translations: [CreateBannerTranslationInput!]!
   }
 
   input UpdateBannerInput {
     id: ID!
+    page: Int
+    position: Int
+    active: Boolean
+    redirectToUrl: Boolean
     translations: [UpdaterBannerTranslationInput!]
+  }
+
+  input DeleteBannerInput {
+    id: [ID!]!
   }
 
   extend type Query {
@@ -61,5 +73,6 @@ export const adminApiExtension = gql`
   extend type Mutation {
     createBanner(input: CreateBannerInput): Banner
     updateBanner(input: UpdateBannerInput): Banner
+    deleteBanner(input: DeleteBannerInput): Boolean
   }
 `;

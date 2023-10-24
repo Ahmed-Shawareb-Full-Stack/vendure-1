@@ -77,7 +77,6 @@ export class WishlistService {
     if (!ctx.activeUserId) {
       throw new ForbiddenError();
     }
-    console.log(ctx);
     const customer = this.connection.getRepository(ctx, Customer).findOne({
       where: { id: ctx.activeUserId },
       relations: {
